@@ -1,6 +1,7 @@
 // Dependências
 import express from 'express';
 import music from './routes/music.js';
+import logging from './middlewares/logging.js';
 
 const app = express();
 const port = 3000;
