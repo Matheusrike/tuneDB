@@ -1,10 +1,9 @@
-// Dependências
+/* --------------------- Dependência es e configurações --------------------- */
 import express from 'express';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import logging from '../middlewares/logging.js';
 import auth from '../middlewares/auth.js';
 
-// Configurações do express
 const router = express.Router();
 router.use(express.json());
 
@@ -23,17 +22,16 @@ try {
 	}
 }
 
-// Rotas
+/* --------------------------- Rota GET - Pública --------------------------- */
 // Lista todos as músicas registradas (Pública)
 router.get('/', logging, (req, res) => {
 	res.status(200).json(musics);
 });
 
-//Lista a música com base no id passado na URL (Pública)
+/* ------------------------- ROTA GET (ID) - Pública ------------------------ */
 router.get('/:id', logging, (req, res) => {
 	const id = parseInt(req.params.id);
 	const music = musics.find((m) => id === m.id);
-
 	if (music) {
 		res.status(200).json(music);
 	} else {
@@ -43,26 +41,72 @@ router.get('/:id', logging, (req, res) => {
 	}
 });
 
-// Adiciona uma nova música ao arquivo database.json
+/* -------------------------------- Rota POST ------------------------------- */
 router.post('/', logging, auth, (req, res) => {
-	//Busca pelo ultimo número de id no database.json
+	const data = req.body;
+	if (!data.title || !data.album || !data.artist || !data.duration) {
+		res.status(400).send(
+			`Requisição inválida, por favor envie um JSON com os seguintes campos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+		);
+		return;
+	}
 	let lastId = 1;
 	musics.forEach((music) => {
 		if (music.id) {
 			lastId++;
 		}
 	});
-
-	//Pega os dados da requisição e adiciona o id
-	const data = req.body;
 	data.id = lastId++;
-
-	//Adiciona os dados ao array de musicas, então sobrescreve o arquivo database.json
 	musics.push(data);
 	writeFileSync('./database.json', JSON.stringify(musics));
-
-	//Informa ao usuário que a música foi adicionada ao json
 	res.status(201).send('Música adicionada com sucesso!');
+});
+
+/* -------------------------- Rota PATCH - Privada -------------------------- */
+router.patch('/:id', logging, auth, (req, res) => {
+	const id = parseInt(req.params.id);
+	const updates = req.body;
+
+	if (
+		!updates.title &&
+		!updates.album &&
+		!updates.artist &&
+		!updates.duration
+	) {
+		res.status(400).send(
+			`Requisição inválida, por favor envie um JSON com pelo menos um dos seguintes campos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+		);
+	}
+
+	const i = musics.findIndex((m) => id === m.id);
+	i === -1 ? res.status(404).send('Música nao encontrada') : null;
+	musics[i] = { ...musics[i], ...updates };
+	writeFileSync('./database.json', JSON.stringify(musics));
+	res.status(200).send('Música atualizada com sucesso.');
+});
+
+/* --------------------------- Rota PUT - Privada --------------------------- */
+router.put('/:id', logging, auth, (req, res) => {
+	const id = parseInt(req.params.id);
+	const updates = req.body;
+
+	if (
+		!updates.title ||
+		!updates.album ||
+		!updates.artist ||
+		!updates.duration
+	) {
+		res.status(400).send(
+			`Requisição inválida, por favor envie um JSON com os seguintes campos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+		);
+		return;
+	}
+
+	const i = musics.findIndex((m) => id === m.id);
+	i === -1 ? res.status(404).send('Música nao encontrada') : null;
+	musics[i] = { ...musics[i], ...updates };
+	writeFileSync('./database.json', JSON.stringify(musics));
+	res.status(200).send('Música atualizada com sucesso.');
 });
 
 export default router;
