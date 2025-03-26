@@ -1,9 +1,7 @@
 /* --------------------- Dependência es e configurações --------------------- */
 import express from 'express';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import logging from '../middlewares/logging.js';
 import auth from '../middlewares/auth.js';
-
 const router = express.Router();
 router.use(express.json());
 
@@ -24,12 +22,12 @@ try {
 
 /* --------------------------- Rota GET - Pública --------------------------- */
 // Lista todos as músicas registradas (Pública)
-router.get('/', logging, (req, res) => {
+router.get('/', (req, res) => {
 	res.status(200).json(musics);
 });
 
 /* ------------------------- ROTA GET (ID) - Pública ------------------------ */
-router.get('/:id', logging, (req, res) => {
+router.get('/:id', (req, res) => {
 	const id = parseInt(req.params.id);
 	const music = musics.find((m) => id === m.id);
 	if (music) {
@@ -42,7 +40,7 @@ router.get('/:id', logging, (req, res) => {
 });
 
 /* -------------------------------- Rota POST ------------------------------- */
-router.post('/', logging, auth, (req, res) => {
+router.post('/', auth, (req, res) => {
 	const data = req.body;
 	if (!data.title || !data.album || !data.artist || !data.duration) {
 		res.status(400).send(
@@ -63,7 +61,7 @@ router.post('/', logging, auth, (req, res) => {
 });
 
 /* -------------------------- Rota PATCH - Privada -------------------------- */
-router.patch('/:id', logging, auth, (req, res) => {
+router.patch('/:id', auth, (req, res) => {
 	const id = parseInt(req.params.id);
 	const updates = req.body;
 
@@ -86,7 +84,7 @@ router.patch('/:id', logging, auth, (req, res) => {
 });
 
 /* --------------------------- Rota PUT - Privada --------------------------- */
-router.put('/:id', logging, auth, (req, res) => {
+router.put('/:id', auth, (req, res) => {
 	const id = parseInt(req.params.id);
 	const updates = req.body;
 

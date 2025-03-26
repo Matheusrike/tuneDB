@@ -1,23 +1,19 @@
 // Dependências
 import express from 'express';
 import music from './routes/music.js';
+import docs from './routes/docs.js';
 import logging from './middlewares/logging.js';
 
 const app = express();
 const port = 3000;
+app.use(logging);
 
 app.get('/', (req, res) => {
-	res.status(200).send(`<h1>Rotas onde realizar requisições</h1>
-	<ul>
-		<li>
-			<h2>/music</h2>
-			<p>Lista todas as músicas registradas.</p>
-			<hr>
-		</li>
-	</ul>`);
+	res.status(200).send();
 });
 
 app.use('/music', music);
+app.use('/docs', docs);
 
 app.listen(port, () => {
 	console.log(`O servidor está ouvindo na porta: http://localhost:${port}`);

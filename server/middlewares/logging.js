@@ -1,4 +1,4 @@
-import { appendFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
 
 const logging = (req, res, next) => {
 	const date = new Date();
@@ -7,7 +7,6 @@ const logging = (req, res, next) => {
 	} | URL: ${req.url}\n`;
 	console.log(registry);
 	next();
-
 	if (existsSync('./logs/server-log.txt')) {
 		appendFileSync('./logs/server-log.txt', registry);
 	} else {

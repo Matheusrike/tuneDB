@@ -2,9 +2,9 @@
 
 ## Objetivo do Projeto
 
-Desenvolver uma CLI interativa utilizando bibliotecas como Inquirer para interação, Chalk para estilização e Axios para realizar requisições a uma API REST.
+Desenvolver uma CLI interativa utilizando bibliotecas como **Inquirer** para interação, **Chalk** para estilização e **Axios** para realizar requisições a uma API REST.
 
-A API deve contar com rotas GET, POST, PUT, PATCH, DELETE e OPTIONS, todas com tratamento de erros adequado, além de exigir autenticação via cabeçalho HTTP em rotas que envolvam ações de inserção, atualização ou remoção de dados.
+A API deve contar com rotas **GET**, **POST**, **PUT**, **PATCH**, **DELETE** e **OPTIONS**, todas com tratamento de erros adequado, além de exigir autenticação via cabeçalho HTTP em rotas que envolvam ações de inserção, atualização ou remoção de dados.
 
 ---
 
@@ -18,7 +18,7 @@ git clone https://github.com/Matheusrike/tuneDB.git
 
 2 - Acesse o diretório via Bash / CMD;
 
-3 - Na pasta, acesse o diretório `server` e instale as dependências;
+3 - Na pasta, acesse o diretório **`server`** e instale as dependências;
 
 ```bash
 npm i
@@ -30,7 +30,7 @@ npm i
 npm run dev
 ```
 
-5 - Deixe seu terminal rodando. Em um novo terminal, acesse novamente o diretório do projeto na pasta `client`;
+5 - Deixe seu terminal rodando. Em um novo terminal, acesse novamente o diretório do projeto na pasta **`client`**;
 
 6 - Instale as dependências do cliente;
 
@@ -53,7 +53,7 @@ npm run dev
 #### CLI
 
 ```bash
-**Selecione uma das opções abaixo:
+Selecione uma das opções abaixo:
 -------------------------------------------------------------------------
 > Consultar registro de músicas
 - Adicionar música ao registro**
@@ -63,7 +63,7 @@ npm run dev
 Selecione o tipo de consulta:
 -------------------------------------------------------------------------
 > Ver todas as músicas
-- Consultar por ID**
+- Consultar por ID
 ```
 
 #### Respostas
@@ -72,7 +72,7 @@ Selecione o tipo de consulta:
 | ---------------- | --------- |
 | 200              | Sucesso   |
 
-###### Exemplo de resposta:
+##### Exemplo de resposta:
 
 ```json
 [
@@ -101,11 +101,11 @@ Selecione o tipo de consulta:
 #### CLI
 
 ```bash
-**Selecione uma das opções abaixo:
+Selecione uma das opções abaixo:
 -------------------------------------------------------------------------
 > Consultar registro de músicas
 - Adicionar música ao registro**
-**- Atualizar registro de músicas
+- Atualizar registro de músicas
 - Remover música do registro
 
 Selecione o tipo de consulta:
@@ -115,7 +115,7 @@ Selecione o tipo de consulta:
 
 Informe o ID da música:
 -------------------------------------------------------------------------
-ID: {id}**
+ID: {id}
 ```
 
 #### Respostas
@@ -125,7 +125,7 @@ ID: {id}**
 | 200              | Sucesso                                                       |
 | 404              | Nenhuma música com o id {id} foi encontrada, tente novamente. |
 
-###### Exemplo de resposta:
+##### Exemplo de resposta:
 
 ```json
 {
@@ -148,30 +148,30 @@ ID: {id}**
 -------------------------------------------------------------------------
 - **Consultar registro de músicas
 > Adicionar música ao registro**
-**- Atualizar registro de músicas
+- Atualizar registro de músicas
 - Remover música do registro
 
-Informe o token de acesso:**
+Informe o token de acesso:
 -------------------------------------------------------------------------
-**Token:** segredo
+Token: segredo
 
-**Informe os dados da música:**
+Informe os dados da música:
 -------------------------------------------------------------------------
-**Título:** {title}
-**Álbum:** {album}
-**Artista:** {artist}
-**Duração(MM:SS):** {00:00}
+Título: {title}
+Álbum: {album}
+Artista: {artist}
+Duração(MM:SS): {00:00}
 ```
 
 #### Requisição
 
-###### Headers\*:
+##### Headers\*:
 
 | Nome          | Valor   |
 | ------------- | ------- |
 | Authorization | segredo |
 
-###### Body\*:
+##### Body\*:
 
 ```json
 {
@@ -196,43 +196,43 @@ Informe o token de acesso:**
 #### CLI
 
 ```bash
-**Selecione uma das opções abaixo:**
+Selecione uma das opções abaixo:
 -------------------------------------------------------------------------
-- **Consultar registro de músicas
-- Adicionar música ao registro**
-**> Atualizar registro de músicas
+- Consultar registro de músicas
+- Adicionar música ao registro
+> Atualizar registro de músicas
 - Remover música do registro
 
-Informe o token de acesso:**
+Informe o token de acesso:
 -------------------------------------------------------------------------
-**Token:** segredo
+Token: segredo
 
-**Selecione o tipo de atualização:
+Selecione o tipo de atualização:
 -------------------------------------------------------------------------
 > Atualizar completamente
-- Atualizar parcialmente**
+- Atualizar parcialmente
 
-**Informe o ID da música:
+Informe o ID da música:
 -------------------------------------------------------------------------
-ID: {id}**
+ID: {id}
 
-**Informe os novos dados da música:**
+Informe os novos dados da música:
 -------------------------------------------------------------------------
-**Título:** {title}
-**Álbum:** {album}
-**Artista:** {artist}
-**Duração(MM:SS):** {00:00}
+Título: {title}
+Álbum: {album}
+Artista: {artist}
+Duração(MM:SS): {00:00}
 ```
 
 #### Requisição
 
-###### Headers\*:
+##### Headers\*:
 
 | Nome          | Valor   |
 | ------------- | ------- |
 | Authorization | segredo |
 
-###### Body\*:
+##### Body\*:
 
 ```json
 {
@@ -258,44 +258,44 @@ ID: {id}**
 #### CLI
 
 ```bash
-**Selecione uma das opções abaixo:**
+Selecione uma das opções abaixo:
 -------------------------------------------------------------------------
-- **Consultar registro de músicas
-- Adicionar música ao registro**
-**> Atualizar registro de músicas
+- Consultar registro de músicas
+- Adicionar música ao registro
+> Atualizar registro de músicas
 - Remover música do registro
 
-Informe o token de acesso:**
+Informe o token de acesso:
 -------------------------------------------------------------------------
-**Token:** segredo
+Token: segredo
 
-**Selecione o tipo de atualização:
+Selecione o tipo de atualização:
 -------------------------------------------------------------------------
 - Atualizar completamente
 > Atualizar parcialmente
 
 Informe o ID da música:
 -------------------------------------------------------------------------
-ID: {id}**
+ID: {id}
 
-**Informe o que deseja alterar no registro:
-[Deixe em branco para manter o valor atual]**
+Informe o que deseja alterar no registro:
+[Deixe em branco para manter o valor atual]
 -------------------------------------------------------------------------
-**Título:** {title}
-**Álbum:** {album}
-**Artista:** {artist}
-**Duração(MM:SS):** {00:00}
+Título: {title}
+Álbum: {album}
+Artista: {artist}
+Duração(MM:SS): {00:00}
 ```
 
 #### Requisição
 
-###### Headers\*:
+##### Headers\*:
 
 | Nome          | Valor   |
 | ------------- | ------- |
 | Authorization | segredo |
 
-###### Body\*:
+##### Body\*:
 
 ```json
 {
@@ -321,25 +321,25 @@ ID: {id}**
 #### CLI
 
 ```bash
-**Selecione uma das opções abaixo:**
+Selecione uma das opções abaixo:
 -------------------------------------------------------------------------
-- **Consultar registro de músicas
-- Adicionar música ao registro**
-- **Atualizar registro de músicas
+- Consultar registro de músicas
+- Adicionar música ao registro
+- Atualizar registro de músicas
 > Remover música do registro
 
-Informe o token de acesso:**
+Informe o token de acesso:
 -------------------------------------------------------------------------
-**Token:** segredo
+Token: segredo
 
-**Informe o ID da música:
+Informe o ID da música:
 -------------------------------------------------------------------------
-ID: {id}**
+ID: {id}
 ```
 
 #### Requisição
 
-###### Headers\*:
+##### Headers\*:
 
 | Nome          | Valor   |
 | ------------- | ------- |
