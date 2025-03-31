@@ -436,6 +436,7 @@ ID: <span class="token punctuation">{</span>id<span class="token punctuation">}<
 <td>Nenhuma música com o id {id} foi encontrada, tente novamente.</td>
 </tr>
 </tbody></table>
+<hr>
 <p>Página desenvolvida com base no Readme usando o <a href="https://apitemplate.io/pdf-tools/convert-markdown-to-pdf/">https://apitemplate.io/pdf-tools/convert-markdown-to-pdf/</a></p>
                 <script>
                     Prism.highlightAll();

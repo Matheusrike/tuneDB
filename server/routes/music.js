@@ -23,7 +23,11 @@ try {
 /* --------------------------- Rota GET - Pública --------------------------- */
 // Lista todos as músicas registradas (Pública)
 router.get('/', (req, res) => {
-	res.status(200).json(musics);
+	if (musics == []) {
+		res.status(200).send('Não há músicas registradas.');
+	} else {
+		res.status(200).json(musics);
+	}
 });
 
 /* ------------------------- ROTA GET (ID) - Pública ------------------------ */
@@ -39,25 +43,29 @@ router.get('/:id', (req, res) => {
 	}
 });
 
-/* -------------------------------- Rota POST ------------------------------- */
+/* --------------------------- Rota POST - Privada -------------------------- */
 router.post('/', auth, (req, res) => {
 	const data = req.body;
-	if (!data.title || !data.album || !data.artist || !data.duration) {
+
+	// Verifica se a requisição possui todos os dados
+	if (data.title && data.album && data.artist && data.duration) {
+		let lastId = 1;
+		musics.forEach((music) => {
+			if (music.id && music.id != lastId++) {
+				lastId++;
+			}
+		});
+		data.id = lastId++;
+
+		musics.push(data);
+		writeFileSync('./database.json', JSON.stringify(musics));
+		res.status(201).send('Música adicionada com sucesso!');
+	} else {
 		res.status(400).send(
 			`Requisição inválida, por favor envie um JSON com os seguintes campos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
 		);
 		return;
 	}
-	let lastId = 1;
-	musics.forEach((music) => {
-		if (music.id) {
-			lastId++;
-		}
-	});
-	data.id = lastId++;
-	musics.push(data);
-	writeFileSync('./database.json', JSON.stringify(musics));
-	res.status(201).send('Música adicionada com sucesso!');
 });
 
 /* -------------------------- Rota PATCH - Privada -------------------------- */
@@ -65,22 +73,24 @@ router.patch('/:id', auth, (req, res) => {
 	const id = parseInt(req.params.id);
 	const updates = req.body;
 
-	if (
-		!updates.title &&
-		!updates.album &&
-		!updates.artist &&
-		!updates.duration
-	) {
+	// Verifica se todos os itens do objeto existem.
+	if (updates.title || updates.album || updates.artist || updates.duration) {
+		// Procura por um id idêntico dentro do JSON
+		const i = musics.findIndex((m) => id === m.id);
+		i === -1
+			? res.status(404).send('Música não encontrada, tente novamente.')
+			: null;
+
+		// Atualiza os valores e grava no JSON
+		musics[i] = { ...musics[i], ...updates };
+		writeFileSync('./database.json', JSON.stringify(musics));
+		res.status(200).send('Música atualizada com sucesso.');
+	} else {
+		// Retorna requisição inválida ao usuário.
 		res.status(400).send(
 			`Requisição inválida, por favor envie um JSON com pelo menos um dos seguintes campos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
 		);
 	}
-
-	const i = musics.findIndex((m) => id === m.id);
-	i === -1 ? res.status(404).send('Música nao encontrada') : null;
-	musics[i] = { ...musics[i], ...updates };
-	writeFileSync('./database.json', JSON.stringify(musics));
-	res.status(200).send('Música atualizada com sucesso.');
 });
 
 /* --------------------------- Rota PUT - Privada --------------------------- */
@@ -88,23 +98,38 @@ router.put('/:id', auth, (req, res) => {
 	const id = parseInt(req.params.id);
 	const updates = req.body;
 
-	if (
-		!updates.title ||
-		!updates.album ||
-		!updates.artist ||
-		!updates.duration
-	) {
+	// Verifica se todos os itens do objeto existem.
+	if (updates.title && updates.album && updates.artist && updates.duration) {
+		// Procura por um id idêntico dentro do JSON
+		const i = musics.findIndex((m) => id === m.id);
+		i === -1
+			? res.status(404).send('Música nao encontrada, tente novamente.')
+			: null;
+
+		// Atualiza os valores e grava no JSON
+		musics[i] = { ...musics[i], ...updates };
+		writeFileSync('./database.json', JSON.stringify(musics));
+		res.status(200).send('Música atualizada com sucesso.');
+	} else {
 		res.status(400).send(
 			`Requisição inválida, por favor envie um JSON com os seguintes campos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
 		);
 		return;
 	}
+});
 
+/* -------------------------- Rota DELETE - Privada ------------------------- */
+router.delete('/:id', auth, (req, res) => {
+	const id = parseInt(req.params.id);
+	// Procura por um id idêntico dentro do JSON
 	const i = musics.findIndex((m) => id === m.id);
-	i === -1 ? res.status(404).send('Música nao encontrada') : null;
-	musics[i] = { ...musics[i], ...updates };
-	writeFileSync('./database.json', JSON.stringify(musics));
-	res.status(200).send('Música atualizada com sucesso.');
+	i === -1
+		? res.status(404).send('Música nao encontrada, tente novamente.')
+		: null;
+
+	// Deleta o item do array
+	musics.splice(i, 1);
+	res.status(200).send('Música deletada com sucesso!');
 });
 
 export default router;

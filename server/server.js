@@ -9,7 +9,9 @@ const port = 3000;
 app.use(logging);
 
 app.get('/', (req, res) => {
-	res.status(200).send();
+	res.status(200).send(
+		`<a href="http://localhost:${port}/docs">Consultar documentação</a>`
+	);
 });
 
 app.use('/music', music);
