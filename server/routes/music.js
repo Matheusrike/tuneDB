@@ -21,9 +21,9 @@ try {
 }
 
 /* --------------------------- Rota GET - Pública --------------------------- */
-// Lista todos as músicas registradas (Pública)
+// Lista todos as músicas registradas
 router.get('/', (req, res) => {
-	if (musics == []) {
+	if (musics == '') {
 		res.status(200).send('Não há músicas registradas.');
 	} else {
 		res.status(200).json(musics);
@@ -34,13 +34,11 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
 	const id = parseInt(req.params.id);
 	const music = musics.find((m) => id === m.id);
-	if (music) {
-		res.status(200).json(music);
-	} else {
-		res.status(404).send(
-			'Música não encontrada. Tente buscar por outro id.'
-		);
-	}
+	music
+		? res.status(200).json(music)
+		: res
+				.status(404)
+				.send('Música não encontrada. Tente buscar por outro id.');
 });
 
 /* --------------------------- Rota POST - Privada -------------------------- */
@@ -77,10 +75,10 @@ router.patch('/:id', auth, (req, res) => {
 	if (updates.title || updates.album || updates.artist || updates.duration) {
 		// Procura por um id idêntico dentro do JSON
 		const i = musics.findIndex((m) => id === m.id);
-		i === -1
-			? res.status(404).send('Música não encontrada, tente novamente.')
-			: null;
-
+		if (i === -1) {
+			res.status(404).send('Música nao encontrada, tente novamente.');
+			return;
+		}
 		// Atualiza os valores e grava no JSON
 		musics[i] = { ...musics[i], ...updates };
 		writeFileSync('./database.json', JSON.stringify(musics));
@@ -90,6 +88,7 @@ router.patch('/:id', auth, (req, res) => {
 		res.status(400).send(
 			`Requisição inválida, por favor envie um JSON com pelo menos um dos seguintes campos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
 		);
+		return;
 	}
 });
 
@@ -102,10 +101,10 @@ router.put('/:id', auth, (req, res) => {
 	if (updates.title && updates.album && updates.artist && updates.duration) {
 		// Procura por um id idêntico dentro do JSON
 		const i = musics.findIndex((m) => id === m.id);
-		i === -1
-			? res.status(404).send('Música nao encontrada, tente novamente.')
-			: null;
-
+		if (i === -1) {
+			res.status(404).send('Música nao encontrada, tente novamente.');
+			return;
+		}
 		// Atualiza os valores e grava no JSON
 		musics[i] = { ...musics[i], ...updates };
 		writeFileSync('./database.json', JSON.stringify(musics));
@@ -123,13 +122,16 @@ router.delete('/:id', auth, (req, res) => {
 	const id = parseInt(req.params.id);
 	// Procura por um id idêntico dentro do JSON
 	const i = musics.findIndex((m) => id === m.id);
-	i === -1
-		? res.status(404).send('Música nao encontrada, tente novamente.')
-		: null;
-
-	// Deleta o item do array
-	musics.splice(i, 1);
-	res.status(200).send('Música deletada com sucesso!');
+	if (i === -1) {
+		res.status(404).send('Música nao encontrada, tente novamente.');
+		return;
+	} else {
+		// Deleta o item do array
+		musics.splice(i, 1);
+		res.status(200).send('Música deletada com sucesso!');
+	}
 });
+
+/* ------------------------- Rota OPTIONS - Pública ------------------------- */
 
 export default router;
