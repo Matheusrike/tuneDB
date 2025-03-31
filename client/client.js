@@ -125,3 +125,38 @@ async function checkOptions() {
 		);
 	}
 }
+
+async function showMenu() {
+	const question = [
+		{
+			type: 'list',
+			name: 'option',
+			message: chalk.yellowBright(
+				`Selecione uma das opções abaixo:\n
+				-------------------------------------------------------------------------`
+			),
+			choices: [
+				{
+					name: chalk.greenBright('Consultar registro de músicas'),
+					value: 'get',
+				},
+				{
+					name: chalk.greenBright('Adicionar música ao registro'),
+					value: 'post',
+				},
+				{
+					name: chalk.greenBright('Atualizar registro de músicas'),
+					value: 'update',
+				},
+				{
+					name: chalk.greenBright('Remover música do registro'),
+					value: 'delete',
+				},
+				{
+					name: chalk.redBright('Sair →'),
+					value: 'exit',
+				},
+			],
+		},
+	];
+}
