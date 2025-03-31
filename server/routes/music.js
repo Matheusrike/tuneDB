@@ -133,5 +133,9 @@ router.delete('/:id', auth, (req, res) => {
 });
 
 /* ------------------------- Rota OPTIONS - Pública ------------------------- */
+router.options('/', (req, res) => {
+	res.header('Allow', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+	res.status(204).send();
+});
 
 export default router;

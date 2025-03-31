@@ -112,3 +112,16 @@ async function deleteMusic(id) {
 		);
 	}
 }
+
+async function checkOptions() {
+	try {
+		const res = await axios.options(`${API_URL}/musics`);
+		return res.headers;
+	} catch (error) {
+		console.error(
+			chalk.bgRedBright.whiteBright.bold(
+				` Request Error: ${error.message}`
+			)
+		);
+	}
+}
