@@ -5,9 +5,11 @@ import chalk from 'chalk';
 const port = 3000;
 const API_URL = `http://localhost:${port}`;
 
-async function getAllMusics() {
+axios.defaults.headers.common['Authorization'] = '';
+
+async function getMusics() {
 	try {
-		const res = await axios.get(`${API_URL}/musics`);
+		const res = await axios.get(`${API_URL}/music`);
 		return res.data;
 	} catch (error) {
 		console.error(
@@ -18,9 +20,9 @@ async function getAllMusics() {
 	}
 }
 
-async function getMusic(id) {
+async function getMusicById(id) {
 	try {
-		const res = await axios.get(`${API_URL}/musics/${id}`);
+		const res = await axios.get(`${API_URL}/music/${id}`);
 		return res.data;
 	} catch (error) {
 		console.error(
@@ -34,7 +36,7 @@ async function getMusic(id) {
 async function postMusic(reqBody) {
 	try {
 		await axios
-			.post(`${API_URL}/musics`, reqBody)
+			.post(`${API_URL}/music`, reqBody, {})
 			.then((res) => {
 				return res;
 			})
@@ -57,7 +59,7 @@ async function postMusic(reqBody) {
 async function putMusic(id, reqBody) {
 	try {
 		await axios
-			.put(`${API_URL}/musics/${id}`, reqBody)
+			.put(`${API_URL}/music/${id}`, reqBody)
 			.then((res) => {
 				return res;
 			})
@@ -80,7 +82,7 @@ async function putMusic(id, reqBody) {
 async function patchMusic(id, reqBody) {
 	try {
 		await axios
-			.patch(`${API_URL}/musics/${id}`, reqBody)
+			.patch(`${API_URL}/music/${id}`, reqBody)
 			.then((res) => {
 				return res;
 			})
@@ -94,7 +96,7 @@ async function patchMusic(id, reqBody) {
 	} catch (error) {
 		console.error(
 			chalk.bgRedBright.whiteBright.bold(
-				` Request Error: ${error.message}`
+				` Request Error: ${error.message} `
 			)
 		);
 	}
@@ -102,12 +104,12 @@ async function patchMusic(id, reqBody) {
 
 async function deleteMusic(id) {
 	try {
-		const res = await axios.delete(`${API_URL}/musics/${id}`);
+		const res = await axios.delete(`${API_URL}/music/${id}`);
 		return res;
 	} catch (error) {
 		console.error(
 			chalk.bgRedBright.whiteBright.bold(
-				` Request Error: ${error.message}`
+				` Request Error: ${error.message} `
 			)
 		);
 	}
@@ -115,38 +117,43 @@ async function deleteMusic(id) {
 
 async function checkOptions() {
 	try {
-		const res = await axios.options(`${API_URL}/musics`);
+		const res = await axios.options(`${API_URL}/music`);
 		return res.headers;
 	} catch (error) {
 		console.error(
 			chalk.bgRedBright.whiteBright.bold(
-				` Request Error: ${error.message}`
+				` Request Error: ${error.message} `
 			)
 		);
 	}
 }
 
 async function showMenu() {
-	const question = [
+	const startQuestion = [
 		{
 			type: 'list',
 			name: 'option',
-			message: chalk.yellowBright(
-				`Selecione uma das opções abaixo:\n
-				-------------------------------------------------------------------------`
-			),
+			message: chalk.yellowBright(`Selecione uma das opções abaixo:`),
 			choices: [
 				{
 					name: chalk.greenBright('Consultar registro de músicas'),
 					value: 'get',
 				},
 				{
+					name: chalk.greenBright('Consultar música especifica'),
+					value: 'getById',
+				},
+				{
 					name: chalk.greenBright('Adicionar música ao registro'),
 					value: 'post',
 				},
 				{
-					name: chalk.greenBright('Atualizar registro de músicas'),
-					value: 'update',
+					name: chalk.greenBright('Atualizar música'),
+					value: 'put',
+				},
+				{
+					name: chalk.greenBright('Atualizar informação da música'),
+					value: 'patch',
 				},
 				{
 					name: chalk.greenBright('Remover música do registro'),
@@ -159,4 +166,43 @@ async function showMenu() {
 			],
 		},
 	];
+	try {
+		const res = await inquirer.prompt(startQuestion);
+
+		switch (res.option) {
+			// Opção GET
+			case 'get':
+				const musics = await getMusics();
+				console.table(musics);
+				console.log('\n');
+				showMenu();
+				break;
+
+			// Opção GET por ID
+			case 'getById':
+				const musicId = await inquirer.prompt([
+					{
+						type: 'input',
+						name: 'id',
+						message: chalk.yellow('Insira o ID da música: '),
+					},
+				]);
+				const music = await getMusicById(musicId.id);
+				console.table(music);
+				console.log('\n');
+				showMenu();
+				break;
+			case 'exit':
+				console.log(chalk.bgCyanBright.blackBright.bold(' 👍 '));
+				break;
+		}
+	} catch (error) {
+		console.error(
+			chalk.bgRedBright.whiteBright.bold(
+				` Request Error: ${error.message} `
+			)
+		);
+	}
 }
+
+showMenu();
