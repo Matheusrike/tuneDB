@@ -5,11 +5,20 @@ import chalk from 'chalk';
 const port = 3000;
 const API_URL = `http://localhost:${port}`;
 
-axios.defaults.headers.common['Authorization'] = '';
+let password = undefined;
+axios.defaults.headers.common['Authorization'] = `Bearer ${password}`;
 
 async function getMusics() {
 	try {
 		const res = await axios.get(`${API_URL}/music`);
+		if (res === '') {
+			console.log(
+				chalk.bgYellowBright.blackBright.bold(
+					' Nenhuma música registrada. '
+				)
+			);
+			return '';
+		}
 		return res.data;
 	} catch (error) {
 		console.error(
@@ -25,11 +34,20 @@ async function getMusicById(id) {
 		const res = await axios.get(`${API_URL}/music/${id}`);
 		return res.data;
 	} catch (error) {
-		console.error(
-			chalk.bgRedBright.whiteBright.bold(
-				` Request Error: ${error.message}`
-			)
-		);
+		if (error.response.status === 404) {
+			console.log(
+				chalk.bgYellowBright.blackBright.bold(
+					' Nenhuma música encontrada com esse ID, tente novamente. '
+				)
+			);
+			return '';
+		} else {
+			console.error(
+				chalk.bgRedBright.whiteBright.bold(
+					` Request Error: ${error.message}`
+				)
+			);
+		}
 	}
 }
 
@@ -128,6 +146,31 @@ async function checkOptions() {
 	}
 }
 
+async function checkAuth() {
+	if (axios.defaults.headers.common['Authorization'] != `Bearer segredo`) {
+		console.log(
+			chalk.bgYellowBright.blackBright.bold(
+				' Autentique-se primeiro para realizar essa ação. '
+			)
+		);
+
+		do {
+			password = await inquirer.prompt([
+				{
+					type: 'password',
+					name: 'value',
+					message: 'Digite a senha:',
+					mask: '*',
+				},
+			]);
+
+			if (password != 'segredo') {
+				console.log('Senha incorreta');
+			}
+		} while (password !== 'segredo');
+	}
+}
+
 async function showMenu() {
 	const startQuestion = [
 		{
@@ -168,7 +211,6 @@ async function showMenu() {
 	];
 	try {
 		const res = await inquirer.prompt(startQuestion);
-
 		switch (res.option) {
 			// Opção GET
 			case 'get':
@@ -189,11 +231,24 @@ async function showMenu() {
 				]);
 				const music = await getMusicById(musicId.id);
 				console.table(music);
-				console.log('\n');
 				showMenu();
 				break;
+
+			// Opção de POST
+			case 'post':
+				await checkAuth();
+				const req = { title: '', album: '', artist: '', duration: '' };
+				console.table(req);
+				showMenu();
+				break;
+
+			// Opção de sair
 			case 'exit':
-				console.log(chalk.bgCyanBright.blackBright.bold(' 👍 '));
+				console.log(
+					'\n',
+					chalk.bgGreenBright.whiteBright.bold(' Finalizado! '),
+					'\n'
+				);
 				break;
 		}
 	} catch (error) {
