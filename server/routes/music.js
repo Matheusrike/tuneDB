@@ -23,11 +23,7 @@ try {
 /* --------------------------- Rota GET - Pública --------------------------- */
 // Lista todos as músicas registradas
 router.get('/', (req, res) => {
-	if (musics == '') {
-		res.status(200).send('Não há músicas registradas.');
-	} else {
-		res.status(200).json(musics);
-	}
+	res.status(200).json(musics);
 });
 
 /* ------------------------- ROTA GET (ID) - Pública ------------------------ */
