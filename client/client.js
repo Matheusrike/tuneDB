@@ -5,8 +5,7 @@ import chalk from 'chalk';
 const port = 3000;
 const API_URL = `http://localhost:${port}`;
 
-let password = undefined;
-axios.defaults.headers.common['Authorization'] = `Bearer ${password}`;
+axios.defaults.headers.common['Authorization'] = undefined;
 
 async function getMusics() {
 	try {
@@ -147,31 +146,42 @@ async function checkOptions() {
 }
 
 async function checkAuth() {
-	if (axios.defaults.headers.common['Authorization'] != `Bearer segredo`) {
+	if (!axios.defaults.headers.common['Authorization']) {
 		console.log(
+			'\n',
 			chalk.bgYellowBright.blackBright.bold(
 				' Autentique-se primeiro para realizar essa ação. '
 			)
 		);
 
+		let password = '';
+
 		do {
-			password = await inquirer.prompt([
+			const inputPassword = await inquirer.prompt([
 				{
 					type: 'password',
 					name: 'value',
 					message: 'Digite a senha:',
-					mask: '*',
+					mask: '•',
 				},
 			]);
 
-			if (password != 'segredo') {
-				console.log('Senha incorreta');
-			}
-		} while (password !== 'segredo');
+			password = inputPassword.value;
+
+			password != 'segredo'
+				? console.log(
+						'\n',
+						chalk.bgYellowBright.blackBright.bold(
+							' Senha incorreta, tente novamente. '
+						)
+				  )
+				: (axios.defaults.headers.common['Authorization'] = `segredo`);
+		} while (password != 'segredo');
 	}
 }
 
 async function showMenu() {
+	// Define a questão inicial
 	const startQuestion = [
 		{
 			type: 'list',
@@ -209,10 +219,12 @@ async function showMenu() {
 			],
 		},
 	];
+
+	// Recebe a resposta e direciona a opção correta
 	try {
 		const res = await inquirer.prompt(startQuestion);
 		switch (res.option) {
-			// Opção GET
+			// Opção GET - Retorna todas as músicas registradas
 			case 'get':
 				const musics = await getMusics();
 				console.table(musics);
@@ -220,7 +232,7 @@ async function showMenu() {
 				showMenu();
 				break;
 
-			// Opção GET por ID
+			// Opção GET por ID - Retorna a música com o id passado
 			case 'getById':
 				const musicId = await inquirer.prompt([
 					{
@@ -237,8 +249,96 @@ async function showMenu() {
 			// Opção de POST
 			case 'post':
 				await checkAuth();
-				const req = { title: '', album: '', artist: '', duration: '' };
-				console.table(req);
+
+				let reqBody = {
+					title: undefined,
+					album: undefined,
+					artist: undefined,
+					duration: undefined,
+				};
+
+				let confirm = undefined;
+
+				do {
+					console.log(
+						'\n',
+						chalk.bgYellowBright.blackBright.bold(
+							' Informe os dados da musica: '
+						)
+					);
+					const setTitle = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'title',
+							message: chalk.greenBright(
+								'Insira o título da música: '
+							),
+						},
+					]);
+
+					const setAlbum = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'album',
+							message: chalk.greenBright(
+								'Insira o album da música: '
+							),
+						},
+					]);
+
+					const setArtist = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'artist',
+							message: chalk.greenBright(
+								'Insira o artista da música: '
+							),
+						},
+					]);
+
+					const setDuration = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'duration',
+							message: chalk.greenBright(
+								'Insira a duração da musica (MM:SS): '
+							),
+						},
+					]);
+
+					reqBody = {
+						title: setTitle.title,
+						album: setAlbum.album,
+						artist: setArtist.artist,
+						duration: setDuration.duration,
+					};
+
+					console.log(
+						'-----------------------------------------------------------------------'
+					);
+					console.table(reqBody);
+
+					confirm = await inquirer.prompt([
+						{
+							type: 'confirm',
+							name: 'value',
+							message: chalk.yellow(
+								`Confirma a inclusão da musica no registro?`
+							),
+						},
+					]);
+				} while (confirm.value != true);
+
+				console.log(
+					'\n',
+					chalk.bgGreenBright.blackBright.bold(
+						' Música registrada com sucesso! '
+					),
+					'\n-----------------------------------------------------------------------',
+					'\n'
+				);
+
+				await postMusic(reqBody);
 				showMenu();
 				break;
 
