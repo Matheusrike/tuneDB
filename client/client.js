@@ -189,27 +189,27 @@ async function showMenu() {
 			message: chalk.yellowBright(`Selecione uma das opções abaixo:`),
 			choices: [
 				{
-					name: chalk.greenBright('Consultar registro de músicas'),
+					name: chalk.greenBright('Listar todas as músicas'),
 					value: 'get',
 				},
 				{
-					name: chalk.greenBright('Consultar música especifica'),
+					name: chalk.greenBright('Buscar música por ID'),
 					value: 'getById',
 				},
 				{
-					name: chalk.greenBright('Adicionar música ao registro'),
+					name: chalk.greenBright('Adicionar nova música'),
 					value: 'post',
 				},
 				{
-					name: chalk.greenBright('Atualizar música'),
+					name: chalk.greenBright('Substituir música existente'),
 					value: 'put',
 				},
 				{
-					name: chalk.greenBright('Atualizar informação da música'),
+					name: chalk.greenBright('Atualizar detalhes da música'),
 					value: 'patch',
 				},
 				{
-					name: chalk.greenBright('Remover música do registro'),
+					name: chalk.greenBright('Remover música'),
 					value: 'delete',
 				},
 				{
@@ -222,19 +222,29 @@ async function showMenu() {
 
 	// Recebe a resposta e direciona a opção correta
 	try {
+		let reqBody = undefined;
+		let musicId = undefined;
+		let confirm = undefined;
+
+		const divider = () => {
+			return chalk.gray(
+				'---------------------------------------------------------------------------'
+			);
+		};
+
 		const res = await inquirer.prompt(startQuestion);
 		switch (res.option) {
 			// Opção GET - Retorna todas as músicas registradas
 			case 'get':
 				const musics = await getMusics();
 				console.table(musics);
-				console.log('\n');
+				console.log(divider(), '\n');
 				showMenu();
 				break;
 
 			// Opção GET por ID - Retorna a música com o id passado
 			case 'getById':
-				const musicId = await inquirer.prompt([
+				musicId = await inquirer.prompt([
 					{
 						type: 'input',
 						name: 'id',
@@ -242,7 +252,8 @@ async function showMenu() {
 					},
 				]);
 				const music = await getMusicById(musicId.id);
-				console.table(music);
+				console.table(Object.values(music));
+				console.log(divider(), '\n');
 				showMenu();
 				break;
 
@@ -250,14 +261,12 @@ async function showMenu() {
 			case 'post':
 				await checkAuth();
 
-				let reqBody = {
+				reqBody = {
 					title: undefined,
 					album: undefined,
 					artist: undefined,
 					duration: undefined,
 				};
-
-				let confirm = undefined;
 
 				do {
 					console.log(
@@ -313,9 +322,7 @@ async function showMenu() {
 						duration: setDuration.duration,
 					};
 
-					console.log(
-						'-----------------------------------------------------------------------'
-					);
+					console.log('\n', divider());
 					console.table(reqBody);
 
 					confirm = await inquirer.prompt([
@@ -334,12 +341,151 @@ async function showMenu() {
 					chalk.bgGreenBright.blackBright.bold(
 						' Música registrada com sucesso! '
 					),
-					'\n-----------------------------------------------------------------------',
+					'\n',
+					divider(),
 					'\n'
 				);
 
 				await postMusic(reqBody);
 				showMenu();
+				break;
+
+			// Opção de PUT
+			case 'put':
+				await checkAuth();
+
+				reqBody = {
+					title: undefined,
+					album: undefined,
+					artist: undefined,
+					duration: undefined,
+				};
+
+				const musicIdQuestion = await inquirer.prompt([
+					{
+						type: 'input',
+						name: 'id',
+						message: chalk.yellow('Insira o ID da música: '),
+					},
+				]);
+
+				musicId = musicIdQuestion.id;
+
+				do {
+					console.log(
+						'\n',
+						chalk.bgYellowBright.blackBright.bold(
+							' Informe os dados da musica: '
+						)
+					);
+					const setTitle = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'title',
+							message: chalk.greenBright(
+								'Insira o título da música: '
+							),
+						},
+					]);
+
+					const setAlbum = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'album',
+							message: chalk.greenBright(
+								'Insira o album da música: '
+							),
+						},
+					]);
+
+					const setArtist = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'artist',
+							message: chalk.greenBright(
+								'Insira o artista da música: '
+							),
+						},
+					]);
+
+					const setDuration = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'duration',
+							message: chalk.greenBright(
+								'Insira a duração da musica (MM:SS): '
+							),
+						},
+					]);
+
+					reqBody = {
+						title: setTitle.title,
+						album: setAlbum.album,
+						artist: setArtist.artist,
+						duration: setDuration.duration,
+					};
+
+					console.log(divider());
+					console.table(reqBody);
+
+					confirm = await inquirer.prompt([
+						{
+							type: 'confirm',
+							name: 'value',
+							message: chalk.yellow(
+								`Confirma atualização da musica no registro?`
+							),
+						},
+					]);
+				} while (confirm.value != true);
+
+				await putMusic(musicId, reqBody);
+				showMenu();
+				break;
+
+			case 'patch':
+				const choices = await inquirer.prompt({
+					type: 'checkbox',
+					name: 'options',
+					message: chalk.greenBright(
+						'Selecione quais informações deseja alterar'
+					),
+					choices: [
+						{ name: 'Titulo', value: 'title' },
+						{ name: 'Album', value: 'album' },
+						{ name: 'Artista', value: 'artist' },
+						{ name: 'Duração', value: 'duration' },
+					],
+				});
+
+				let option = (reqBody = {});
+
+				if (choices.options.includes('title')) {
+					const titleQuestion = await inquirer.prompt({
+						type: 'input',
+						name: 'value',
+						message: chalk.greenBright(
+							'Insira o título da música:'
+						),
+					});
+
+					let input = { title: titleQuestion.value };
+
+					reqBody = { ...reqBody, ...input };
+					console.log(reqBody);
+				}
+
+				if (choices.options.includes('album')) {
+					console.log('album existe');
+				}
+
+				if (choices.options.includes('artist')) {
+					console.log('artist existe');
+				}
+
+				if (choices.options.includes('duration')) {
+					console.log('duration existe');
+				}
 				break;
 
 			// Opção de sair
