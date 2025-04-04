@@ -7,6 +7,12 @@ const API_URL = `http://localhost:${port}`;
 
 axios.defaults.headers.common['Authorization'] = undefined;
 
+const divider = () => {
+	return chalk.gray(
+		'---------------------------------------------------------------------------'
+	);
+};
+
 async function getMusics() {
 	try {
 		const res = await axios.get(`${API_URL}/music`);
@@ -35,6 +41,7 @@ async function getMusicById(id) {
 	} catch (error) {
 		if (error.response.status === 404) {
 			console.log(
+				'\n',
 				chalk.bgYellowBright.blackBright.bold(
 					' Nenhuma música encontrada com esse ID, tente novamente. '
 				)
@@ -81,11 +88,22 @@ async function putMusic(id, reqBody) {
 				return res;
 			})
 			.catch((err) => {
-				console.error(
-					chalk.bgRedBright.whiteBright.bold(
-						` Response Error: ${err.message}`
-					)
-				);
+				if (err.response.status === 404) {
+					console.log(
+						'\n',
+						chalk.bgYellowBright.blackBright.bold(
+							' Nenhuma música encontrada com esse ID, tente novamente. '
+						),
+						'\n'
+					);
+					return '';
+				} else {
+					console.error(
+						chalk.bgRedBright.whiteBright.bold(
+							` Response Error: ${err.message}`
+						)
+					);
+				}
 			});
 	} catch (error) {
 		console.error(
@@ -104,16 +122,27 @@ async function patchMusic(id, reqBody) {
 				return res;
 			})
 			.catch((err) => {
-				console.error(
-					chalk.bgRedBright.whiteBright.bold(
-						` Response Error: ${err.message}`
-					)
-				);
+				if (err.response.status === 404) {
+					console.log(
+						'\n',
+						chalk.bgYellowBright.blackBright.bold(
+							' Nenhuma música encontrada com esse ID, tente novamente. '
+						),
+						'\n'
+					);
+					return '';
+				} else {
+					console.error(
+						chalk.bgRedBright.whiteBright.bold(
+							` Response Error: ${err.message}`
+						)
+					);
+				}
 			});
 	} catch (error) {
 		console.error(
 			chalk.bgRedBright.whiteBright.bold(
-				` Request Error: ${error.message} `
+				` Request Error: ${error.message}`
 			)
 		);
 	}
@@ -124,11 +153,21 @@ async function deleteMusic(id) {
 		const res = await axios.delete(`${API_URL}/music/${id}`);
 		return res;
 	} catch (error) {
-		console.error(
-			chalk.bgRedBright.whiteBright.bold(
-				` Request Error: ${error.message} `
-			)
-		);
+		if (error.response.status === 404) {
+			console.log(
+				'\n',
+				chalk.bgYellowBright.blackBright.bold(
+					' Nenhuma música encontrada com esse ID, tente novamente. '
+				)
+			);
+			return '';
+		} else {
+			console.error(
+				chalk.bgRedBright.whiteBright.bold(
+					` Request Error: ${error.message}`
+				)
+			);
+		}
 	}
 }
 
@@ -181,6 +220,10 @@ async function checkAuth() {
 }
 
 async function showMenu() {
+	let reqBody = undefined;
+	let musicId = undefined;
+	let confirm = undefined;
+
 	// Define a questão inicial
 	const startQuestion = [
 		{
@@ -222,16 +265,6 @@ async function showMenu() {
 
 	// Recebe a resposta e direciona a opção correta
 	try {
-		let reqBody = undefined;
-		let musicId = undefined;
-		let confirm = undefined;
-
-		const divider = () => {
-			return chalk.gray(
-				'---------------------------------------------------------------------------'
-			);
-		};
-
 		const res = await inquirer.prompt(startQuestion);
 		switch (res.option) {
 			// Opção GET - Retorna todas as músicas registradas
@@ -244,16 +277,26 @@ async function showMenu() {
 
 			// Opção GET por ID - Retorna a música com o id passado
 			case 'getById':
-				musicId = await inquirer.prompt([
-					{
-						type: 'input',
-						name: 'id',
-						message: chalk.yellow('Insira o ID da música: '),
-					},
-				]);
+				do {
+					musicId = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'id',
+							message: chalk.yellow('Insira o ID da música: '),
+						},
+					]);
+
+					if (isNaN(musicId.id)) {
+						console.log(
+							chalk.bgRedBright.whiteBright.bold(
+								' ID inválido, tente novamente. '
+							)
+						);
+					}
+				} while (isNaN(musicId.id));
 				const music = await getMusicById(musicId.id);
-				console.table(Object.values(music));
-				console.log(divider(), '\n');
+				console.table(music);
+				console.log(divider());
 				showMenu();
 				break;
 
@@ -361,15 +404,24 @@ async function showMenu() {
 					duration: undefined,
 				};
 
-				const musicIdQuestion = await inquirer.prompt([
-					{
-						type: 'input',
-						name: 'id',
-						message: chalk.yellow('Insira o ID da música: '),
-					},
-				]);
+				console.log('\t');
+				do {
+					musicId = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'id',
+							message: chalk.yellow('Insira o ID da música: '),
+						},
+					]);
 
-				musicId = musicIdQuestion.id;
+					if (isNaN(musicId.id)) {
+						console.log(
+							chalk.bgRedBright.whiteBright.bold(
+								' ID inválido, tente novamente. '
+							)
+						);
+					}
+				} while (isNaN(musicId.id));
 
 				do {
 					console.log(
@@ -439,54 +491,202 @@ async function showMenu() {
 					]);
 				} while (confirm.value != true);
 
-				await putMusic(musicId, reqBody);
+				await putMusic(musicId.id, reqBody);
 				showMenu();
 				break;
 
 			case 'patch':
-				const choices = await inquirer.prompt({
-					type: 'checkbox',
-					name: 'options',
-					message: chalk.greenBright(
-						'Selecione quais informações deseja alterar'
-					),
-					choices: [
-						{ name: 'Titulo', value: 'title' },
-						{ name: 'Album', value: 'album' },
-						{ name: 'Artista', value: 'artist' },
-						{ name: 'Duração', value: 'duration' },
-					],
-				});
+				await checkAuth();
+				console.log('\t');
 
-				let option = (reqBody = {});
+				do {
+					musicId = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'id',
+							message: chalk.yellow('Insira o ID da música: '),
+						},
+					]);
 
-				if (choices.options.includes('title')) {
-					const titleQuestion = await inquirer.prompt({
-						type: 'input',
-						name: 'value',
+					if (isNaN(musicId.id)) {
+						console.log(
+							chalk.bgRedBright.whiteBright.bold(
+								' ID inválido, tente novamente. '
+							)
+						);
+					}
+				} while (isNaN(musicId.id));
+
+				console.log('\t');
+				do {
+					const choices = await inquirer.prompt({
+						type: 'checkbox',
+						name: 'options',
 						message: chalk.greenBright(
-							'Insira o título da música:'
+							'Selecione quais informações deseja alterar'
 						),
+						choices: [
+							{ name: 'Titulo', value: 'title' },
+							{ name: 'Album', value: 'album' },
+							{ name: 'Artista', value: 'artist' },
+							{ name: 'Duração', value: 'duration' },
+						],
 					});
 
-					let input = { title: titleQuestion.value };
+					reqBody = {};
+					let input = {};
 
-					reqBody = { ...reqBody, ...input };
-					console.log(reqBody);
-				}
+					console.log(
+						'\n',
+						chalk.bgYellowBright.blackBright.bold(
+							`Informe os dados a serem alterados:`
+						)
+					);
 
-				if (choices.options.includes('album')) {
-					console.log('album existe');
-				}
+					if (choices.options.includes('title')) {
+						const titleQuestion = await inquirer.prompt({
+							type: 'input',
+							name: 'value',
+							message: chalk.yellowBright(
+								'Insira o título da música:'
+							),
+						});
 
-				if (choices.options.includes('artist')) {
-					console.log('artist existe');
-				}
+						input = { title: titleQuestion.value };
 
-				if (choices.options.includes('duration')) {
-					console.log('duration existe');
-				}
+						reqBody = { ...reqBody, ...input };
+					}
+
+					if (choices.options.includes('album')) {
+						const albumQuestion = await inquirer.prompt({
+							type: 'input',
+							name: 'value',
+							message: chalk.yellowBright(
+								'Insira o album da música:'
+							),
+						});
+
+						input = { album: albumQuestion.value };
+
+						reqBody = { ...reqBody, ...input };
+					}
+
+					if (choices.options.includes('artist')) {
+						const artistQuestion = await inquirer.prompt({
+							type: 'input',
+							name: 'value',
+							message: chalk.yellowBright(
+								'Insira o artista da música:'
+							),
+						});
+
+						input = { artist: artistQuestion.value };
+
+						reqBody = { ...reqBody, ...input };
+					}
+
+					if (choices.options.includes('duration')) {
+						const durationQuestion = await inquirer.prompt({
+							type: 'input',
+							name: 'value',
+							message: chalk.yellowBright(
+								'Insira a duração da música (MM:SS):'
+							),
+						});
+
+						input = { duration: durationQuestion.value };
+
+						reqBody = { ...reqBody, ...input };
+					}
+
+					console.log(divider());
+					console.table(reqBody);
+
+					confirm = await inquirer.prompt([
+						{
+							type: 'confirm',
+							name: 'value',
+							message: chalk.yellow(
+								`Confirma atualização da musica no registro?`
+							),
+						},
+					]);
+				} while (confirm.value != true);
+
+				await patchMusic(musicId.id, reqBody);
+				console.log('\t');
+				showMenu();
 				break;
+
+			case 'delete':
+				await checkAuth();
+				console.log('\t');
+
+				do {
+					musicId = await inquirer.prompt([
+						{
+							type: 'input',
+							name: 'id',
+							message: chalk.yellow('Insira o ID da musica: '),
+						},
+					]);
+
+					if (isNaN(musicId.id)) {
+						console.log(
+							chalk.bgRedBright.whiteBright.bold(
+								' ID inválido, tente novamente. '
+							)
+						);
+					}
+				} while (isNaN(musicId.id));
+
+				confirm = await inquirer.prompt([
+					{
+						type: 'confirm',
+						name: 'value',
+						message: chalk.yellow(
+							`Confirma exclusão da musica no registro?`
+						),
+					},
+				]);
+
+				if (confirm.value != true) {
+					console.log(
+						'\n',
+						chalk.bgYellowBright.blackBright.bold(
+							' Operação cancelada! '
+						),
+						'\n',
+						divider(),
+						'\n'
+					);
+					showMenu();
+					break;
+				} else {
+					console.log('\t');
+					await deleteMusic(musicId.id).catch((error) => {
+						if (error.response.status === 404) {
+							console.log(
+								chalk.bgRedBright.whiteBright.bold(
+									' ID inválido, tente novamente. '
+								)
+							);
+						} else {
+							console.log(
+								'\n',
+								chalk.bgGreenBright.blackBright.bold(
+									' Música excluída com sucesso! '
+								),
+								'\n',
+								divider(),
+								'\n'
+							);
+						}
+					});
+
+					showMenu();
+					break;
+				}
 
 			// Opção de sair
 			case 'exit':
