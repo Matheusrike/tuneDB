@@ -155,10 +155,13 @@ async function deleteMusic(id) {
 	} catch (error) {
 		if (error.response.status === 404) {
 			console.log(
-				'\n',
+				'',
 				chalk.bgYellowBright.blackBright.bold(
 					' Nenhuma música encontrada com esse ID, tente novamente. '
-				)
+				),
+				'\n',
+				divider(),
+				'\n'
 			);
 			return '';
 		} else {
