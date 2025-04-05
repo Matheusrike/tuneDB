@@ -256,6 +256,10 @@ async function showMenu() {
 					value: 'delete',
 				},
 				{
+					name: chalk.gray('Options →'),
+					value: 'options',
+				},
+				{
 					name: chalk.redBright('Sair →'),
 					value: 'exit',
 				},
@@ -495,6 +499,7 @@ async function showMenu() {
 				showMenu();
 				break;
 
+			// Opção de PATCH
 			case 'patch':
 				await checkAuth();
 				console.log('\t');
@@ -618,6 +623,7 @@ async function showMenu() {
 				showMenu();
 				break;
 
+			// Opção de DELETE
 			case 'delete':
 				await checkAuth();
 				console.log('\t');
@@ -687,6 +693,21 @@ async function showMenu() {
 					showMenu();
 					break;
 				}
+
+			// Opção de OPTIONS
+			case 'options':
+				const res = await checkOptions();
+				console.log();
+				console.log(
+					chalk.bgBlueBright.whiteBright.bold(' OPTIONS '),
+					'\n\n',
+					res.allow,
+					'\n',
+					divider(),
+					'\n'
+				);
+				showMenu();
+				break;
 
 			// Opção de sair
 			case 'exit':
