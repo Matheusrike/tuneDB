@@ -53,17 +53,15 @@ npm run dev
 #### CLI
 
 ```bash
-Selecione uma das opções abaixo:
--------------------------------------------------------------------------
-> Consultar registro de músicas
-- Adicionar música ao registro**
-- Atualizar registro de músicas
-- Remover música do registro
-
-Selecione o tipo de consulta:
--------------------------------------------------------------------------
-> Ver todas as músicas
-- Consultar por ID
+? Selecione uma das opções abaixo:
+> Listar todas as músicas
+  Buscar música por ID
+  Adicionar nova música
+  Substituir música existente
+  Atualizar detalhes da música
+  Remover música
+  Options →
+  Sair →
 ```
 
 #### Respostas
@@ -101,21 +99,17 @@ Selecione o tipo de consulta:
 #### CLI
 
 ```bash
-Selecione uma das opções abaixo:
--------------------------------------------------------------------------
-> Consultar registro de músicas
-- Adicionar música ao registro**
-- Atualizar registro de músicas
-- Remover música do registro
-
-Selecione o tipo de consulta:
--------------------------------------------------------------------------
-- Ver todas as músicas
-> Consultar por ID
-
-Informe o ID da música:
--------------------------------------------------------------------------
-ID: {id}
+? Selecione uma das opções abaixo:
+  Listar todas as músicas
+> Buscar música por ID
+  Adicionar nova música
+  Substituir música existente
+  Atualizar detalhes da música
+  Remover música
+  Options →
+  Sair →
+------------------------------------------------------------------
+? Insira o ID da música: {id}
 ```
 
 #### Respostas
@@ -144,23 +138,26 @@ ID: {id}
 #### CLI
 
 ```bash
-**Selecione uma das opções abaixo:**
--------------------------------------------------------------------------
-- **Consultar registro de músicas
-> Adicionar música ao registro**
-- Atualizar registro de músicas
-- Remover música do registro
-
-Informe o token de acesso:
--------------------------------------------------------------------------
-Token: segredo
-
-Informe os dados da música:
--------------------------------------------------------------------------
-Título: {title}
-Álbum: {album}
-Artista: {artist}
-Duração(MM:SS): {00:00}
+? Selecione uma das opções abaixo:
+  Listar todas as músicas
+  Buscar música por ID
+> Adicionar nova música
+  Substituir música existente
+  Atualizar detalhes da música
+  Remover música
+  Options →
+  Sair →
+------------------------------------------------------------------
+  Autentique-se primeiro para realizar essa ação.
+? Digite a senha: segredo
+------------------------------------------------------------------
+  Informe os dados da musica:
+? Insira o título da música: {Nome da música}
+? Insira o album da música: {Album da música}
+? Insira o artista da música: {Artista da música}
+? Insira a duração da musica (MM:SS): {Duração da música}
+------------------------------------------------------------------
+? Confirma a inclusão da musica no registro? (Y/n)
 ```
 
 #### Requisição
@@ -196,32 +193,28 @@ Duração(MM:SS): {00:00}
 #### CLI
 
 ```bash
-Selecione uma das opções abaixo:
--------------------------------------------------------------------------
-- Consultar registro de músicas
-- Adicionar música ao registro
-> Atualizar registro de músicas
-- Remover música do registro
-
-Informe o token de acesso:
--------------------------------------------------------------------------
-Token: segredo
-
-Selecione o tipo de atualização:
--------------------------------------------------------------------------
-> Atualizar completamente
-- Atualizar parcialmente
-
-Informe o ID da música:
--------------------------------------------------------------------------
-ID: {id}
-
-Informe os novos dados da música:
--------------------------------------------------------------------------
-Título: {title}
-Álbum: {album}
-Artista: {artist}
-Duração(MM:SS): {00:00}
+? Selecione uma das opções abaixo:
+  Listar todas as músicas
+  Buscar música por ID
+  Adicionar nova música
+> Substituir música existente
+  Atualizar detalhes da música
+  Remover música
+  Options →
+  Sair →
+------------------------------------------------------------------
+  Autentique-se primeiro para realizar essa ação.
+? Digite a senha: segredo
+------------------------------------------------------------------
+? Insira o ID da música: {id}
+------------------------------------------------------------------
+  Informe os dados da musica:
+? Insira o título da música: {Nome da música}
+? Insira o album da música: {Album da música}
+? Insira o artista da música: {Artista da música}
+? Insira a duração da musica (MM:SS): {Duração da música}
+------------------------------------------------------------------
+? Confirma atualização da musica no registro? (Y/n)
 ```
 
 #### Requisição
@@ -258,33 +251,34 @@ Duração(MM:SS): {00:00}
 #### CLI
 
 ```bash
-Selecione uma das opções abaixo:
--------------------------------------------------------------------------
-- Consultar registro de músicas
-- Adicionar música ao registro
-> Atualizar registro de músicas
-- Remover música do registro
-
-Informe o token de acesso:
--------------------------------------------------------------------------
-Token: segredo
-
-Selecione o tipo de atualização:
--------------------------------------------------------------------------
-- Atualizar completamente
-> Atualizar parcialmente
-
-Informe o ID da música:
--------------------------------------------------------------------------
-ID: {id}
-
-Informe o que deseja alterar no registro:
-[Deixe em branco para manter o valor atual]
--------------------------------------------------------------------------
-Título: {title}
-Álbum: {album}
-Artista: {artist}
-Duração(MM:SS): {00:00}
+? Selecione uma das opções abaixo:
+  Listar todas as músicas
+  Buscar música por ID
+  Adicionar nova música
+  Substituir música existente
+> Atualizar detalhes da música
+  Remover música
+  Options →
+  Sair →
+------------------------------------------------------------------
+  Autentique-se primeiro para realizar essa ação.
+? Digite a senha: segredo
+------------------------------------------------------------------
+? Insira o ID da música: {id}
+------------------------------------------------------------------
+? ? Selecione quais informações deseja alterar
+>( ) Titulo
+ ( ) Album
+ ( ) Artista
+ ( ) Duração
+------------------------------------------------------------------
+  Informe os dados da musica:
+? Insira o título da música: {Nome da música}
+? Insira o album da música: {Album da música}
+? Insira o artista da música: {Artista da música}
+? Insira a duração da musica (MM:SS): {Duração da música}
+------------------------------------------------------------------
+? Confirma atualização da musica no registro? (Y/n)
 ```
 
 #### Requisição
@@ -321,20 +315,22 @@ Duração(MM:SS): {00:00}
 #### CLI
 
 ```bash
-Selecione uma das opções abaixo:
--------------------------------------------------------------------------
-- Consultar registro de músicas
-- Adicionar música ao registro
-- Atualizar registro de músicas
-> Remover música do registro
-
-Informe o token de acesso:
--------------------------------------------------------------------------
-Token: segredo
-
-Informe o ID da música:
--------------------------------------------------------------------------
-ID: {id}
+? Selecione uma das opções abaixo:
+  Listar todas as músicas
+  Buscar música por ID
+  Adicionar nova música
+> Substituir música existente
+  Atualizar detalhes da música
+  Remover música
+  Options →
+  Sair →
+------------------------------------------------------------------
+  Autentique-se primeiro para realizar essa ação.
+? Digite a senha: segredo
+------------------------------------------------------------------
+? Insira o ID da música: {id}
+------------------------------------------------------------------
+? Confirma atualização da musica no registro? (Y/n)
 ```
 
 #### Requisição
