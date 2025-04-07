@@ -3,7 +3,8 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
 	res.status(200).send(`<body>
-		<style>
+
+        <style>
 body {
     font-family: Barlow, sans-serif;
     line-height: 1.6;
@@ -64,6 +65,7 @@ h3 {
 }
                     
 		</style>
+        <p>Página desenvolvida com base no Readme usando o <a href="https://apitemplate.io/pdf-tools/convert-markdown-to-pdf/">https://apitemplate.io/pdf-tools/convert-markdown-to-pdf/</a></p>
                 <h1>Relatório de Projeto - API e CLI para Registro de Músicas</h1>
 <h2>Objetivo do Projeto</h2>
 <p>Desenvolver uma CLI interativa utilizando bibliotecas como <strong>Inquirer</strong> para interação, <strong>Chalk</strong> para estilização e <strong>Axios</strong> para realizar requisições a uma API REST.</p>
@@ -436,8 +438,7 @@ ID: <span class="token punctuation">{</span>id<span class="token punctuation">}<
 <td>Nenhuma música com o id {id} foi encontrada, tente novamente.</td>
 </tr>
 </tbody></table>
-<hr>
-<p>Página desenvolvida com base no Readme usando o <a href="https://apitemplate.io/pdf-tools/convert-markdown-to-pdf/">https://apitemplate.io/pdf-tools/convert-markdown-to-pdf/</a></p>
+
                 <script>
                     Prism.highlightAll();
                 </script>
