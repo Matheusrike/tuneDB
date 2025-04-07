@@ -6,7 +6,43 @@ const router = express.Router();
 router.use(express.json());
 
 // Inicialização do array de musicas com base no database.json
-let musics = [];
+let musics = [
+	{
+		id: 1,
+		title: 'Garota de Ipanema',
+		album: 'Getz/Gilberto',
+		artist: 'Antônio Carlos Jobim',
+		duration: '5:21',
+	},
+	{
+		id: 2,
+		title: 'Numb',
+		album: 'Meteora',
+		artist: 'Linkin Park',
+		duration: '3:07',
+	},
+	{
+		id: 3,
+		title: 'Livin On A Prayer',
+		album: 'Slippery When Wet',
+		artist: 'Bon Jovi',
+		duration: '4:11',
+	},
+	{
+		id: 4,
+		title: 'Sweet Child o Mine',
+		album: 'Appetite for Destruction',
+		artist: 'Guns N Roses',
+		duration: '5:56',
+	},
+	{
+		id: 5,
+		title: 'I Was Made For Loving You',
+		album: 'Dynasty',
+		artist: 'Kiss',
+		duration: '4:29',
+	},
+];
 try {
 	const data = JSON.parse(readFileSync('./database.json', 'utf8'));
 	musics = data;
@@ -56,7 +92,7 @@ router.post('/', auth, (req, res) => {
 		res.status(201).send('Música adicionada com sucesso!');
 	} else {
 		res.status(400).send(
-			`Requisição inválida, por favor envie um JSON com os seguintes campos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+			`Requisição inválida, por favor envie um JSON com os seguintes campos preenchidos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
 		);
 		return;
 	}
@@ -82,7 +118,7 @@ router.patch('/:id', auth, (req, res) => {
 	} else {
 		// Retorna requisição inválida ao usuário.
 		res.status(400).send(
-			`Requisição inválida, por favor envie um JSON com pelo menos um dos seguintes campos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+			`Requisição inválida, por favor envie um JSON com pelo menos um dos seguintes campos preenchidos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
 		);
 		return;
 	}
@@ -107,7 +143,7 @@ router.put('/:id', auth, (req, res) => {
 		res.status(200).send('Música atualizada com sucesso.');
 	} else {
 		res.status(400).send(
-			`Requisição inválida, por favor envie um JSON com os seguintes campos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+			`Requisição inválida, por favor envie um JSON com os seguintes campos preenchidos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
 		);
 		return;
 	}
