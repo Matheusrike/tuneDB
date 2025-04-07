@@ -62,14 +62,36 @@ async function postMusic(reqBody) {
 		await axios
 			.post(`${API_URL}/music`, reqBody, {})
 			.then((res) => {
+				console.log(
+					'\n',
+					chalk.bgGreenBright.blackBright.bold(
+						' Música registrada com sucesso! '
+					),
+					'\n',
+					divider(),
+					'\n'
+				);
 				return res;
 			})
 			.catch((err) => {
-				console.error(
-					chalk.bgRedBright.whiteBright.bold(
-						` Response Error: ${err.message}`
-					)
-				);
+				if (err.response.status === 400) {
+					console.log(
+						'\n',
+						chalk.bgYellowBright.blackBright.bold(
+							' Envio de dados fora do padrão, tente novamente. '
+						),
+						'\n',
+						divider(),
+						'\n'
+					);
+					return '';
+				} else {
+					console.error(
+						chalk.bgRedBright.whiteBright.bold(
+							` Response Error: ${err.message}`
+						)
+					);
+				}
 			});
 	} catch (error) {
 		console.error(
@@ -95,6 +117,17 @@ async function putMusic(id, reqBody) {
 							' Nenhuma música encontrada com esse ID, tente novamente. '
 						),
 						'\n'
+					);
+					return '';
+				}
+				if (err.response.status === 400) {
+					console.log(
+						'\n',
+						chalk.bgYellowBright.blackBright.bold(
+							' Envio de dados fora do padrão, tente novamente. '
+						),
+						'\n',
+						divider()
 					);
 					return '';
 				} else {
@@ -128,6 +161,18 @@ async function patchMusic(id, reqBody) {
 						chalk.bgYellowBright.blackBright.bold(
 							' Nenhuma música encontrada com esse ID, tente novamente. '
 						),
+						'\n'
+					);
+					return '';
+				}
+				if (err.response.status === 400) {
+					console.log(
+						'\n',
+						chalk.bgYellowBright.blackBright.bold(
+							' Envio de dados fora do padrão, tente novamente. '
+						),
+						'\n',
+						divider(),
 						'\n'
 					);
 					return '';
@@ -385,17 +430,6 @@ async function showMenu() {
 						},
 					]);
 				} while (confirm.value != true);
-
-				console.log(
-					'\n',
-					chalk.bgGreenBright.blackBright.bold(
-						' Música registrada com sucesso! '
-					),
-					'\n',
-					divider(),
-					'\n'
-				);
-
 				await postMusic(reqBody);
 				showMenu();
 				break;

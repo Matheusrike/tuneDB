@@ -78,7 +78,12 @@ router.post('/', auth, (req, res) => {
 	const data = req.body;
 
 	// Verifica se a requisição possui todos os dados
-	if (data.title && data.album && data.artist && data.duration) {
+	if (
+		data.title != '' &&
+		data.album != '' &&
+		data.artist != '' &&
+		data.duration != ''
+	) {
 		let lastId = 1;
 		musics.forEach((music) => {
 			if (music.id && music.id != lastId++) {
