@@ -50,7 +50,6 @@ try {
 	// Cria o database.json caso ele não exista
 	if (!existsSync('./database.json')) {
 		writeFileSync('./database.json', JSON.stringify(musics));
-		musics = [];
 	} else {
 		console.log("Erro ao ler o arquivo 'database.json', Error: ", err);
 	}
