@@ -1,170 +1,185 @@
 /* --------------------- Dependência es e configurações --------------------- */
 import express from 'express';
+import database from '../database/connection.js';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import auth from '../middlewares/auth.js';
+import { arch } from 'node:os';
 const router = express.Router();
 router.use(express.json());
 
-// Inicialização do array de musicas com base no database.json
-let musics = [
-	{
-		id: 1,
-		title: 'Garota de Ipanema',
-		album: 'Getz/Gilberto',
-		artist: 'Antônio Carlos Jobim',
-		duration: '5:21',
-	},
-	{
-		id: 2,
-		title: 'Numb',
-		album: 'Meteora',
-		artist: 'Linkin Park',
-		duration: '3:07',
-	},
-	{
-		id: 3,
-		title: 'Livin On A Prayer',
-		album: 'Slippery When Wet',
-		artist: 'Bon Jovi',
-		duration: '4:11',
-	},
-	{
-		id: 4,
-		title: 'Sweet Child o Mine',
-		album: 'Appetite for Destruction',
-		artist: 'Guns N Roses',
-		duration: '5:56',
-	},
-	{
-		id: 5,
-		title: 'I Was Made For Loving You',
-		album: 'Dynasty',
-		artist: 'Kiss',
-		duration: '4:29',
-	},
-];
-try {
-	const data = JSON.parse(readFileSync('./database.json', 'utf8'));
-	musics = data;
-} catch (err) {
-	// Cria o database.json caso ele não exista
-	if (!existsSync('./database.json')) {
-		writeFileSync('./database.json', JSON.stringify(musics));
-	} else {
-		console.log("Erro ao ler o arquivo 'database.json', Error: ", err);
-	}
-}
-
 /* --------------------------- Rota GET - Pública --------------------------- */
 // Lista todos as músicas registradas
-router.get('/', (req, res) => {
-	res.status(200).json(musics);
+router.get('/', async (req, res) => {
+	try {
+		const [rows] = await database.query('select * from musics');
+		res.status(200).json(rows);
+	} catch (error) {
+		res.status(500).send(
+			'Erro ao consultar registros, Detalhe do erro: ',
+			error
+		);
+	}
 });
 
 /* ------------------------- ROTA GET (ID) - Pública ------------------------ */
-router.get('/:id', (req, res) => {
-	const id = parseInt(req.params.id);
-	const music = musics.find((m) => id === m.id);
-	music
-		? res.status(200).json(music)
-		: res
-				.status(404)
-				.send('Música não encontrada. Tente buscar por outro id.');
+router.get('/:id', async (req, res) => {
+	try {
+		const { id } = req.params;
+		const [music] = await database.query(
+			'select * from musics where id = ?',
+			id
+		);
+		music.length >= 1
+			? res.status(200).json(music[0])
+			: res
+					.status(404)
+					.send('Música não encontrada. Tente buscar por outro id.');
+	} catch (error) {
+		res.status(500).send(
+			'Erro ao consultar registros, Detalhe do erro: ',
+			error
+		);
+	}
 });
 
 /* --------------------------- Rota POST - Privada -------------------------- */
-router.post('/', auth, (req, res) => {
-	const data = req.body;
+router.post('/', auth, async (req, res) => {
+	try {
+		const data = req.body;
 
-	// Verifica se a requisição possui todos os dados
-	if (
-		data.title != '' &&
-		data.album != '' &&
-		data.artist != '' &&
-		data.duration != ''
-	) {
-		let lastId = 1;
-		musics.forEach((music) => {
-			if (music.id && music.id != lastId++) {
-				lastId++;
-			}
-		});
-		data.id = lastId++;
-
-		musics.push(data);
-		writeFileSync('./database.json', JSON.stringify(musics));
-		res.status(201).send('Música adicionada com sucesso!');
-	} else {
-		res.status(400).send(
-			`Requisição inválida, por favor envie um JSON com os seguintes campos preenchidos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+		// Verifica se a requisição possui todos os dados
+		if (
+			data.title != '' &&
+			data.album != '' &&
+			data.artist != '' &&
+			data.duration != ''
+		) {
+			await database.query(
+				'insert into musics(title, album, artist, duration) values (?,?,?,?)',
+				[data.title, data.album, data.artist, data.duration]
+			);
+			res.status(201).send('Música adicionada com sucesso!');
+		} else {
+			res.status(400).send(
+				`Requisição inválida, por favor envie um JSON com os seguintes campos preenchidos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+			);
+		}
+	} catch (error) {
+		res.status(500).send(
+			'Erro ao consultar registros, Detalhe do erro: ',
+			error
 		);
-		return;
 	}
 });
 
 /* -------------------------- Rota PATCH - Privada -------------------------- */
-router.patch('/:id', auth, (req, res) => {
-	const id = parseInt(req.params.id);
-	const updates = req.body;
+router.patch('/:id', auth, async (req, res) => {
+	try {
+		const { id } = req.params;
+		let updates = {
+			title: null,
+			album: null,
+			artist: null,
+			duration: null,
+		};
 
-	// Verifica se todos os itens do objeto existem.
-	if (updates.title || updates.album || updates.artist || updates.duration) {
-		// Procura por um id idêntico dentro do JSON
-		const i = musics.findIndex((m) => id === m.id);
-		if (i === -1) {
-			res.status(404).send('Música nao encontrada, tente novamente.');
-			return;
+		updates = { ...updates, ...req.body };
+
+		// Verifica se pelo menos um dos itens existe na requisição.
+		if (
+			updates.title != null ||
+			updates.album != null ||
+			updates.artist != null ||
+			updates.duration != null
+		) {
+			await database.query(
+				'update musics set title = case when ? is not null then ? else title end, album = case when ? is not null then ? else album end, artist = case when ? is not null then ? else artist end, duration = case when ? is not null then ? else duration end where id = ?',
+				[
+					updates.title,
+					updates.title,
+					updates.album,
+					updates.album,
+					updates.artist,
+					updates.artist,
+					updates.duration,
+					updates.duration,
+					id,
+				]
+			);
+
+			res.status(200).send('Música atualizada com sucesso.');
+		} else {
+			// Retorna requisição inválida ao usuário.
+			res.status(400).send(
+				`Requisição inválida, por favor envie um JSON com pelo menos um dos seguintes campos preenchidos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+			);
 		}
-		// Atualiza os valores e grava no JSON
-		musics[i] = { ...musics[i], ...updates };
-		writeFileSync('./database.json', JSON.stringify(musics));
-		res.status(200).send('Música atualizada com sucesso.');
-	} else {
-		// Retorna requisição inválida ao usuário.
-		res.status(400).send(
-			`Requisição inválida, por favor envie um JSON com pelo menos um dos seguintes campos preenchidos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+	} catch (error) {
+		res.status(500).send(
+			'Erro ao consultar registros, Detalhe do erro: ',
+			error
 		);
-		return;
 	}
 });
 
 /* --------------------------- Rota PUT - Privada --------------------------- */
-router.put('/:id', auth, (req, res) => {
-	const id = parseInt(req.params.id);
-	const updates = req.body;
+router.put('/:id', auth, async (req, res) => {
+	try {
+		const { id } = req.params;
+		const updates = req.body;
 
-	// Verifica se todos os itens do objeto existem.
-	if (updates.title && updates.album && updates.artist && updates.duration) {
-		// Procura por um id idêntico dentro do JSON
-		const i = musics.findIndex((m) => id === m.id);
-		if (i === -1) {
-			res.status(404).send('Música nao encontrada, tente novamente.');
-			return;
+		// Verifica se todos os itens do objeto existem.
+		if (
+			updates.title &&
+			updates.album &&
+			updates.artist &&
+			updates.duration
+		) {
+			// Atualiza a música no banco de dados
+			await database.query(
+				'update musics set title = ?, album = ?, artist = ?, duration = ? where id = ?',
+				[
+					updates.title,
+					updates.album,
+					updates.artist,
+					updates.duration,
+					id,
+				]
+			);
+			res.status(200).send('Música atualizada com sucesso.');
+		} else {
+			res.status(400).send(
+				`Requisição inválida, por favor envie um JSON com os seguintes campos preenchidos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+			);
 		}
-		// Atualiza os valores e grava no JSON
-		musics[i] = { ...musics[i], ...updates };
-		writeFileSync('./database.json', JSON.stringify(musics));
-		res.status(200).send('Música atualizada com sucesso.');
-	} else {
-		res.status(400).send(
-			`Requisição inválida, por favor envie um JSON com os seguintes campos preenchidos: 'title(string)', 'album(string)', 'artist(string)' e 'duration(string)'`
+	} catch (error) {
+		res.status(500).send(
+			'Erro ao consultar registros, Detalhe do erro: ',
+			error
 		);
-		return;
 	}
 });
 
 /* -------------------------- Rota DELETE - Privada ------------------------- */
-router.delete('/:id', auth, (req, res) => {
-	const id = parseInt(req.params.id);
-	// Procura por um id idêntico dentro do JSON
-	const i = musics.findIndex((m) => id === m.id);
-	if (i === -1) {
-		res.status(404).send('Música nao encontrada, tente novamente.');
-		return;
-	} else {
-		// Deleta o item do array
-		musics.splice(i, 1);
-		res.status(200).send('Música deletada com sucesso!');
+router.delete('/:id', auth, async (req, res) => {
+	try {
+		const { id } = req.params;
+		const [result] = await database.query(
+			'delete from musics where id = ?',
+			id
+		);
+		if (result.affectedRows > 0) {
+			res.status(200).send('Música deletada com sucesso!');
+		} else {
+			res.status(404).send(
+				'Música não encontrada. Tente buscar por outro id.'
+			);
+		}
+	} catch (error) {
+		res.status(500).send(
+			'Erro ao consultar registros, Detalhe do erro: ',
+			error
+		);
 	}
 });
 
